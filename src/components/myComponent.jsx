@@ -10,9 +10,13 @@ const titles = day.map(celebration => celebration.title);
 const index = day.title;
 console.log(data);
 
- const searchQuery = titles.join(' ');
+ /*const searchQuery = titles.join(' ');
     const searchLink = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+  */
   
+  const searchQuery = titles.join(' ');
+    const searchLink = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(searchQuery)}`;
+    
     
     
     
