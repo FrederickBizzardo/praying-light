@@ -8,9 +8,16 @@ const day = data.celebrations;
 const titles = day.map(celebration => celebration.title);
 
 const index = day.title;
-
 console.log(data);
 
+ const searchQuery = titles.join(' ');
+    const searchLink = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+  
+    
+    
+    
+
+  console.log('results', searchLink);
 
 function Movies() {
 // Output the result to the page
@@ -21,9 +28,18 @@ function Movies() {
 //return <div>{JSON.stringify(day)}</div>;
 
 
-return <div>{JSON.stringify(titles)}</div>;
+//return <div>{JSON.stringify(titles)}</div>;
 
+return (
   
+  <div className="text-center">
+    <h2 className="font-black font-sans font-mono text-2xl">Celebration Title</h2>
+        <p className="italic">{titles.join(', ')}</p>
+          <div>
+        <p>Google Search Link: <a href={searchLink} target="_blank" rel="noopener noreferrer">{/*results*/}Link</a></p>
+      </div>
+  </div>
+  )
 };
 
   export default Movies;
