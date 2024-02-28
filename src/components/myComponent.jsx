@@ -17,13 +17,14 @@ console.log(data);
   const searchQuery = titles.join(' ');
     const searchLink = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(searchQuery)}`;
     
-    
-    
-    
+ //const imageSearch = searchLink[0];
 
   console.log('results', searchLink);
 
 function Movies() {
+  
+  //==========================
+  
 // Output the result to the page
 
 // return <div>{JSON.stringify(data)}</div>;
@@ -34,6 +35,8 @@ function Movies() {
 
 //return <div>{JSON.stringify(titles)}</div>;
 
+
+
 return (
   
   <div className="text-center">
@@ -42,6 +45,9 @@ return (
           <div>
         <p>Google Search Link: <a href={searchLink} target="_blank" rel="noopener noreferrer">{/*results*/}Link</a></p>
       </div>
+      <div>
+        <img src={searchLink} alt="First Image" />
+        </div>
   </div>
   )
 };
