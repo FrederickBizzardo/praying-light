@@ -16,9 +16,9 @@ const index = day.title;
 console.log(data);
 
 
- /*const searchQuery = titles.join(' ');
-    const searchLink = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
-  */
+/*const searchQuery = titles.join(' ');
+const searchLink = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+*/
 
 
 const searchQuery = titles.join(' ');
@@ -27,16 +27,40 @@ const searchLink = `https://www.google.com/search?tbm=isch&q=${encodeURIComponen
 
 // DO NOT DELETE THIS CODE IT PARTLY WORKS
 
- const googleResponse = await fetch(searchLink);
- const googleHtml = await googleResponse.text();
+/* const googleResponse = await fetch(searchLink);
+const googleHtml = await googleResponse.text();
 
- const dom = new JSDOM(googleHtml);
- const firstImage = dom.window.document.querySelector('img').getAttribute('src');
+const dom = new JSDOM(googleHtml);
+const firstImage = dom.window.document.querySelector('img').getAttribute('src');
+*/
 
-const imageElements = dom.window.document.querySelectorAll('a');
-const urls = Array.from(imageElements).map(a => a.getAttribute('href'));
+/* const url = 'https://google-api31.p.rapidapi.com/imagesearch';
+const options = {
+method: 'POST',
+headers: {
+'content-type': 'application/json',
+'X-RapidAPI-Key': '8f968af43amsh76cadb057036071p1a5d10jsn7b5bad7d572b',
+'X-RapidAPI-Host': 'google-api31.p.rapidapi.com'
+},
+body: {
+text: 'rose',
+safesearch: 'off',
+region: 'wt-wt',
+color: '',
+size: '',
+type_image: '',
+layout: '',
+max_results: 100
+}
+};
 
-const image = (dom[0]);
+try {
+const response = await fetch(url, options);
+const result = await response.text();
+console.log(result);
+} catch (error) {
+console.error(error);
+}*/
 
 //===============================
 
@@ -47,11 +71,12 @@ const image = (dom[0]);
 
 console.log('results', searchLink);
 
+
 function Celebration() {
 
+    console.log('Image:', imageUrl);
 
-
-  //==========================
+//==========================
 
 // Output the result to the page
 
@@ -76,15 +101,13 @@ return (
       </div>
       <div>
         <img src={searchLink} alt="First Image" />
-          <p>{urls[0]}</p>
         <img src={searchQuery} alt="First Image" />
         {/*<p>{searchLink}</p>*/}
         <p>Google Search Link: <a href={searchLink} target="_blank" rel="noopener noreferrer">{/*results*/}new Link</a></p>
-          <img src={urls[0]} alt="First Image" />
-          <p>{googleHtml}</p>
+          {imageUrl && <img src={imageUrl} alt="Jesus" />}
       </div>
   </div>
   )
 };
 
-  export default Celebration;
+export default Celebration;
