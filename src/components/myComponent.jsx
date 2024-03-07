@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
+// import axios from 'axios';
 
 import { JSDOM } from 'jsdom';
 
@@ -12,7 +12,7 @@ const day = data.celebrations;
 // const date = data.celebrations[0];
 const titles = day.map(celebration => celebration.title);
 
-const index = day.title;
+// const index = day.title;
 console.log(data);
 
 
@@ -37,7 +37,7 @@ const searchLink = `https://www.google.com/search?tbm=isch&q=${encodeURIComponen
 const imageElements = dom.window.document.querySelectorAll('img');
 const urls = Array.from(imageElements).map(img => img.getAttribute('src'));
 
-const image = (urls[0]);
+// const image = (urls[0]);
 
 
 
@@ -89,10 +89,11 @@ return (
       </div>
       <div className="text-center">
           <h1 className="font-black text-4xl mt-30 mb-2">Rosary</h1>
-          <p className="">{rosary} Mysteries</p>
+          <p className="italic text-2xl">{rosary} Mysteries</p>
       </div>
   </div>
 )
-};
+}
+// };
 
 export default Celebration;
