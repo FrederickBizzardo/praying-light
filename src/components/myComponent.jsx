@@ -50,11 +50,12 @@ console.log('image url', urls);
 const roseResponse = await fetch('https://the-rosary-api.vercel.app/v1/today');
 const roseData = await roseResponse.json();
 const rosary = roseData.map(celebration => celebration.mystery);
+const rosaryDown = roseData.map(celebration => celebration.mp3Link);
 
 
 console.log('Rosary: ',roseData);
 console.log('Rosary: ',rosary);
-
+console.log('Rosary: ',rosaryDown);
 
 
 function Celebration() {
@@ -90,10 +91,14 @@ return (
       <div className="text-center">
           <h1 className="font-black text-4xl mt-30 mb-2">Rosary</h1>
           <p className="italic text-2xl">{rosary} Mysteries</p>
+          <audio controls>
+              <source src={rosaryDown} type="audio/mpeg"/>
+          </audio>
       </div>
   </div>
 )
 }
+
 // };
 
 export default Celebration;
