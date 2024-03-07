@@ -72,18 +72,10 @@ function Celebration() {
 return (
 
   <div className="text-center">
-    <h2 className="font-black text-2xl">Celebration Title</h2>
-        <p className="italic">{titles.join(', ')}</p>
+    <h2 className="font-black text-2xl mb-2">Celebration Title</h2>
+        <p className="italic mb-5">{titles.join(', ')}</p>
           <div>
-        <p>Google Search Link: <a href={searchLink} target="_blank" rel="noopener noreferrer">{/*results*/}Link</a></p>
-      </div>
-      <div>
-        <img src={searchLink} alt="First Image" />
-          <p><a href={urls[0]} target="_blank" rel="noopener noreferrer">Image Link</a></p>
-        <img src={searchQuery} alt="First Image" />
-        {/*<p>{searchLink}</p>*/}
-        <p>Google Search Link: <a href={searchLink} target="_blank" rel="noopener noreferrer">{/*results*/}new Link</a></p>
-          <img src={urls[3]} alt="First Image" />
+          <img className="block m-auto w-1/3 rounded-lg" src={urls[3]} alt="First Image" />
           {/*<p>{googleHtml}</p>*/}
       </div>
   </div>

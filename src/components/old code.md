@@ -93,21 +93,23 @@ function Celebration() {
 
 return (
 
-  <div className="text-center">
-    <h2 className="font-black font-sans font-mono text-2xl">Celebration Title</h2>
+<div className="text-center">
+    <h2 className="font-black text-2xl">Celebration Title</h2>
         <p className="italic">{titles.join(', ')}</p>
           <div>
         <p>Google Search Link: <a href={searchLink} target="_blank" rel="noopener noreferrer">{/*results*/}Link</a></p>
       </div>
       <div>
         <img src={searchLink} alt="First Image" />
+          <p><a href={urls[0]} target="_blank" rel="noopener noreferrer">Image Link</a></p>
         <img src={searchQuery} alt="First Image" />
         {/*<p>{searchLink}</p>*/}
         <p>Google Search Link: <a href={searchLink} target="_blank" rel="noopener noreferrer">{/*results*/}new Link</a></p>
-          {imageUrl && <img src={imageUrl} alt="Jesus" />}
+          <img src={urls[3]} alt="First Image" />
+          {/*<p>{googleHtml}</p>*/}
       </div>
   </div>
-  )
+)
 };
 
 export default Celebration;
