@@ -23,6 +23,7 @@ console.log(data);
 
 const searchQuery = titles.join(' ');
 const searchLink = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(searchQuery)}`;
+// const searchLink = `https://thecatholicgallery.github.io/categories/artwork/?page=2`;
 
 
 // DO NOT DELETE THIS CODE IT PARTLY WORKS
@@ -31,12 +32,12 @@ const searchLink = `https://www.google.com/search?tbm=isch&q=${encodeURIComponen
  const googleHtml = await googleResponse.text();
 
  const dom = new JSDOM(googleHtml);
- const firstImage = dom.window.document.querySelector('img').getAttribute('src');
+// const firstImage = dom.window.document.querySelector('img').getAttribute('src');
 
-const imageElements = dom.window.document.querySelectorAll('a');
-const urls = Array.from(imageElements).map(a => a.getAttribute('href'));
+const imageElements = dom.window.document.querySelectorAll('img');
+const urls = Array.from(imageElements).map(img => img.getAttribute('src'));
 
-const image = (dom[0]);
+const image = (urls[0]);
 
 //===============================
 
@@ -46,6 +47,8 @@ const image = (dom[0]);
 
 
 console.log('results', searchLink);
+
+console.log('image url', urls);
 
 function Celebration() {
 
@@ -69,19 +72,19 @@ function Celebration() {
 return (
 
   <div className="text-center">
-    <h2 className="font-black font-sans font-mono text-2xl">Celebration Title</h2>
+    <h2 className="font-black text-2xl">Celebration Title</h2>
         <p className="italic">{titles.join(', ')}</p>
           <div>
         <p>Google Search Link: <a href={searchLink} target="_blank" rel="noopener noreferrer">{/*results*/}Link</a></p>
       </div>
       <div>
         <img src={searchLink} alt="First Image" />
-          <p>{urls[0]}</p>
+          <p><a href={urls[0]} target="_blank" rel="noopener noreferrer">Image Link</a></p>
         <img src={searchQuery} alt="First Image" />
         {/*<p>{searchLink}</p>*/}
         <p>Google Search Link: <a href={searchLink} target="_blank" rel="noopener noreferrer">{/*results*/}new Link</a></p>
-          <img src={urls[0]} alt="First Image" />
-          <p>{googleHtml}</p>
+          <img src={urls[3]} alt="First Image" />
+          {/*<p>{googleHtml}</p>*/}
       </div>
   </div>
   )
