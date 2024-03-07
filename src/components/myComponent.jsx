@@ -39,20 +39,25 @@ const urls = Array.from(imageElements).map(img => img.getAttribute('src'));
 
 const image = (urls[0]);
 
-//===============================
-
 
 
 //const imageSearch = searchLink[0];
-
 
 console.log('results', searchLink);
 
 console.log('image url', urls);
 
+const roseResponse = await fetch('https://the-rosary-api.vercel.app/v1/today');
+const roseData = await roseResponse.json();
+const rosary = roseData.map(celebration => celebration.mystery);
+
+
+console.log('Rosary: ',roseData);
+console.log('Rosary: ',rosary);
+
+
+
 function Celebration() {
-
-
 
   //==========================
 
@@ -71,7 +76,7 @@ function Celebration() {
 
 return (
 
-  <div className="absolute">
+  <div className="">
       <div className="relative mx-0 mb-20">
           <h1 className="font-black text-4xl">Shining Light</h1>
       </div>
@@ -79,8 +84,12 @@ return (
           <h2 className="font-black text-2xl mt-30 mb-2">Day</h2>
           <div className="flex inline">
               <p className="italic mb-5">{titles.join(', ')}</p>
-              <img className=" w-1/2 rounded-lg" src={urls[3]} alt="First Image"/>
+              <img className=" w-1/3 rounded-lg" src={urls[3]} alt="First Image"/>
           </div>
+      </div>
+      <div className="text-center">
+          <h1 className="font-black text-4xl mt-30 mb-2">Rosary</h1>
+          <p className="">{rosary} Mysteries</p>
       </div>
   </div>
 )
