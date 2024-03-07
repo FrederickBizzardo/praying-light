@@ -71,15 +71,19 @@ function Celebration() {
 
 return (
 
-  <div className="text-center">
-    <h2 className="font-black text-2xl mb-2">Celebration Title</h2>
-        <p className="italic mb-5">{titles.join(', ')}</p>
-          <div>
-          <img className="block m-auto w-1/3 rounded-lg" src={urls[3]} alt="First Image" />
-          {/*<p>{googleHtml}</p>*/}
+  <div className="absolute">
+      <div className="relative mx-0 mb-20">
+          <h1 className="font-black text-4xl">Shining Light</h1>
+      </div>
+      <div className="relative">
+          <h2 className="font-black text-2xl mt-30 mb-2">Day</h2>
+          <div className="flex inline">
+              <p className="italic mb-5">{titles.join(', ')}</p>
+              <img className=" w-1/2 rounded-lg" src={urls[3]} alt="First Image"/>
+          </div>
       </div>
   </div>
-  )
+)
 };
 
-  export default Celebration;
+export default Celebration;
