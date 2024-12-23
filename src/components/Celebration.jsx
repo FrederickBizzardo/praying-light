@@ -16,7 +16,7 @@ export default function Celebration() {
         setIsLoading(true);
         setError(null);
         const response = await fetch(
-          "http://calapi.inadiutorium.cz/api/v0/en/calendars/default/today"
+          "https://calapi.inadiutorium.cz/api/v0/en/calendars/default/today"
         );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
