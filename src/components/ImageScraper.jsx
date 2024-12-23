@@ -1,64 +1,64 @@
 import React, { useEffect, useState } from 'react';
-//import React, { useEffect, useRef } from '@astrojs/react';
-// import axios from 'axios';
 import { motion } from 'framer-motion';
-import Header from '../components/Header.jsx';
-// import { useInView } from 'react-intersection-observer';
-//import { JSDOM } from 'jsdom';
-import '../assets/fonts.css';
 
-const response = await fetch('http://calapi.inadiutorium.cz/api/v0/en/calendars/default/today');
-const data = await response.json();
-const day = data.celebrations;
-console.log(data);
-const titles = day.map(celebration => celebration.title);
-console.log(titles);
+export default function ImageScraper({ searchQuery }) {
+  const [imageUrl, setImageUrl] = useState('');
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    async function fetchImage() {
+      if (!searchQuery) return;
 
-const searchQuery = titles.join(' ');
-const searchLink = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(searchQuery)}`;
+      setIsLoading(true);
+      setError(null);
 
-
-    const googleResponse = await fetch(searchLink);
-    const googleHtml = await googleResponse.text();
-
-    const getGoogleImages = (googleHtml) => {
-    const imageUrls = [];
-    const regex = /<img[^>]+src="([^">]+)/g;
-    let match;
-
-    while ((match = regex.exec(googleHtml)) !== null) {
-        // Extract the image URL from the matched string
-        const imageUrl = match[1];
-        imageUrls.push(imageUrl);
+      try {
+        console.log('Fetching image for query:', searchQuery);
+        
+        const response = await fetch(`/api/scrapeImage?searchQuery=${encodeURIComponent(searchQuery)}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.imageUrl) {
+          setImageUrl(data.imageUrl);
+        } else {
+          throw new Error(data.error || 'No image URL found');
+        }
+      } catch (error) {
+        console.error('Error fetching image:', error);
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
+      }
     }
 
-    return imageUrls;
-};
+    fetchImage();
+  }, [searchQuery]);
 
-// Usage:
-const imageUrls = getGoogleImages(googleHtml);
-console.log(imageUrls);
+  if (error) {
+    return <p className="text-red-500">Error loading image: {error}</p>;
+  }
 
-export default function ImageScraper() {
-    return (
-        <main className="">
-            <img className=" w-full rounded-lg" src={imageUrls[3]} alt="First Image"/>
-        </main>
-
-    )
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="w-full max-w-md mx-auto"
+    >
+      {isLoading ? (
+        <p className="text-gray-500">Loading image...</p>
+      ) : imageUrl ? (
+        <img className="w-full rounded-lg shadow-lg" src={imageUrl} alt="Scraped Image" />
+      ) : (
+        <p className="text-gray-500">No image found</p>
+      )}
+    </motion.div>
+  );
 }
-;
 
-// DO NOT DELETE THIS CODE IT PARTLY WORKS
-/*
-const googleResponse = await fetch(searchLink);
-const googleHtml = await googleResponse.text();
-
-const dom = new JSDOM(googleHtml);
-
-const imageElements = dom.window.document.querySelectorAll('img');
-const urls = Array.from(imageElements).map(img => img.getAttribute('src'));
-
-console.log('Google search results link:', searchLink);
-console.log('Image URLs:', urls);*/
