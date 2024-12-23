@@ -6,7 +6,7 @@ import '/assets/fonts.css?url';
 
 // SHINING LIGHT
 
-const response =  await fetch('http://calapi.inadiutorium.cz/api/v0/en/calendars/default/today')
+const response =  await fetch('https://calapi.inadiutorium.cz/api/v0/en/calendars/default/today')
 
 const data = await response.json();
 const day = data.celebrations;
