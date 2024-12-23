@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+//import React, { useEffect, useState } from 'react';
 //import React, { useEffect, useRef } from '@astrojs/react';
 // import axios from 'axios';
-import { motion } from 'framer-motion';
-import Header from '../components/Header.jsx';
+//import { motion } from 'framer-motion';
+//import Header from '../components/Header.jsx';
 // import { useInView } from 'react-intersection-observer';
 //import { JSDOM } from 'jsdom';
 import '../assets/fonts.css';
