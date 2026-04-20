@@ -15,50 +15,43 @@ async function handleImageScrape(request: Request) {
   const searchQuery = url.searchParams.get('searchQuery');
 
   if (!searchQuery) {
-    console.warn('No search query provided');
     return new Response(JSON.stringify({ error: 'Search query is required' }), {
       status: 400,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache, no-store, must-revalidate'
-      },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 
   try {
-    const searchLink = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(searchQuery)}`;
-    console.log('Fetching Google Images with link:', searchLink);
-
-    const googleResponse = await fetch(searchLink, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-      }
-    });
-
-    if (!googleResponse.ok) {
-      console.error(`Google returned an error with status: ${googleResponse.status}`);
-      throw new Error(`HTTP error! status: ${googleResponse.status}`);
-    }
-
-    const googleHtml = await googleResponse.text();
-    const imageUrls = getGoogleImages(googleHtml);
-
-    if (imageUrls.length > 0) {
-      console.log('Images found:', imageUrls);
-      return new Response(JSON.stringify({ imageUrl: imageUrls[0] }), {
+    const images = await fetchImagesFromGoogle(searchQuery);
+    
+    if (images.length > 0) {
+      return new Response(JSON.stringify({ imageUrl: images[0] }), {
         status: 200,
         headers: {
           'Content-Type': 'application/json',
           'Cache-Control': 'public, max-age=3600'
         },
       });
-    } else {
-      console.warn('No images found for query:', searchQuery);
-      return new Response(JSON.stringify({ error: 'No images found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      });
     }
+
+    // Fallback: Try a slightly broader query if the specific one fails
+    const simplerQuery = searchQuery.includes(',') ? searchQuery.split(',').slice(-1)[0].trim() : null;
+    if (simplerQuery) {
+      console.log('Retrying with simpler query:', simplerQuery);
+      const fallbackImages = await fetchImagesFromGoogle(simplerQuery);
+      if (fallbackImages.length > 0) {
+        return new Response(JSON.stringify({ imageUrl: fallbackImages[0] }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+    console.warn('No images found for query:', searchQuery);
+    return new Response(JSON.stringify({ error: 'No images found' }), {
+      status: 404,
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     console.error('Error scraping image:', error);
     return new Response(JSON.stringify({ error: 'Failed to scrape image' }), {
@@ -68,40 +61,48 @@ async function handleImageScrape(request: Request) {
   }
 }
 
+async function fetchImagesFromGoogle(query: string): Promise<string[]> {
+  const searchLink = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(query)}`;
+  
+  const response = await fetch(searchLink, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
+    },
+    signal: AbortSignal.timeout(5000)
+  });
+
+  if (!response.ok) throw new Error(`Google Search failed: ${response.status}`);
+
+  const html = await response.text();
+  return getGoogleImages(html);
+}
+
 function getGoogleImages(googleHtml: string): string[] {
   const imageUrls: string[] = [];
   
-  // First try to find images in JSON data
-  const jsonMatch = googleHtml.match(/AF_initDataCallback\({.*?data:([^\]]*\])[\s\S]*?}\);/g);
-  if (jsonMatch) {
-    jsonMatch.forEach(match => {
-      try {
-        const jsonStr = match.match(/data:([^\]]*\])/)?.[1];
-        if (jsonStr) {
-          const data = JSON.parse(jsonStr);
-          JSON.stringify(data).match(/(https?:\/\/[^"]+\.(?:jpg|jpeg|png|webp))/gi)?.forEach(url => {
-            if (!url.includes('gstatic.com') && !url.includes('google.com')) {
-              imageUrls.push(url);
-            }
-          });
-        }
-      } catch (e) {
-        console.error('Error parsing JSON data:', e);
-      }
-    });
+  // Broadly match URLs ending in common image extensions that are NOT google-owned
+  // This is more resilient than looking for specific JSON structures
+  const regex = /"(https?:\/\/[^"\\ ]+?\.(?:jpg|jpeg|png|webp))"/gi;
+  let match;
+  while ((match = regex.exec(googleHtml)) !== null) {
+    const url = match[1];
+    if (!url.includes('google.com') && 
+        !url.includes('gstatic.com') && 
+        !url.includes('googleusercontent.com')) {
+      imageUrls.push(url);
+    }
   }
 
-  // Fallback to regular image tags if no images found in JSON
+  // Fallback to searching for <img> tags if no script URLs found
   if (imageUrls.length === 0) {
-    const imgRegex = /\["(https?:\/\/[^"]+\.(?:jpg|jpeg|png|webp))",[0-9]+,[0-9]+\]/g;
-    let match;
-    while ((match = imgRegex.exec(googleHtml)) !== null) {
-      const imageUrl = match[1];
-      if (!imageUrl.includes('gstatic.com') && !imageUrl.includes('google.com')) {
-        imageUrls.push(imageUrl);
+    const imgTagRegex = /<img[^>]+src="([^">]+)"/gi;
+    while ((match = imgTagRegex.exec(googleHtml)) !== null) {
+      const url = match[1];
+      if (url.startsWith('http') && !url.includes('google.com')) {
+        imageUrls.push(url);
       }
     }
   }
 
-  return imageUrls;
+  return [...new Set(imageUrls)];
 }
