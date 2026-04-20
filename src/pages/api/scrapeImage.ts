@@ -62,11 +62,15 @@ async function handleImageScrape(request: Request) {
 }
 
 async function fetchImagesFromGoogle(query: string): Promise<string[]> {
-  const searchLink = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(query)}`;
+  // Use a mobile User-Agent to get a simpler HTML structure
+  // Also add safe=active to avoid filtering and try to get more direct results
+  const searchLink = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(query)}&safe=active`;
   
   const response = await fetch(searchLink, {
     headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
+      'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.5'
     },
     signal: AbortSignal.timeout(5000)
   });
@@ -74,17 +78,25 @@ async function fetchImagesFromGoogle(query: string): Promise<string[]> {
   if (!response.ok) throw new Error(`Google Search failed: ${response.status}`);
 
   const html = await response.text();
+  console.log(`Fetched HTML length: ${html.length}`);
   return getGoogleImages(html);
 }
 
 function getGoogleImages(googleHtml: string): string[] {
   const imageUrls: string[] = [];
   
-  // Broadly match URLs ending in common image extensions that are NOT google-owned
-  // This is more resilient than looking for specific JSON structures
-  const regex = /"(https?:\/\/[^"\\ ]+?\.(?:jpg|jpeg|png|webp))"/gi;
+  // 1. Try to find the common JSON-like structure in mobile/lite results
+  // Pattern: ["https://url.com/image.jpg", height, width]
+  const jsonPattern = /\["(https?:\/\/[^"\\ ]+?\.(?:jpg|jpeg|png|webp|gif))",\s*\d+,\s*\d+\]/gi;
   let match;
-  while ((match = regex.exec(googleHtml)) !== null) {
+  while ((match = jsonPattern.exec(googleHtml)) !== null) {
+    imageUrls.push(match[1]);
+  }
+
+  // 2. Try to find direct image URLs in any attribute (src, data-src, etc.)
+  // We look for patterns that look like URLs ending in image extensions
+  const broadPattern = /(https?:\/\/[^"\\\s<>]+?\.(?:jpg|jpeg|png|webp))/gi;
+  while ((match = broadPattern.exec(googleHtml)) !== null) {
     const url = match[1];
     if (!url.includes('google.com') && 
         !url.includes('gstatic.com') && 
@@ -93,16 +105,17 @@ function getGoogleImages(googleHtml: string): string[] {
     }
   }
 
-  // Fallback to searching for <img> tags if no script URLs found
+  // 3. Fallback: Extract from <img> tags directly
   if (imageUrls.length === 0) {
-    const imgTagRegex = /<img[^>]+src="([^">]+)"/gi;
-    while ((match = imgTagRegex.exec(googleHtml)) !== null) {
+    const imgTagPattern = /<img[^>]+src=["'](https?:\/\/[^"']+)["']/gi;
+    while ((match = imgTagPattern.exec(googleHtml)) !== null) {
       const url = match[1];
-      if (url.startsWith('http') && !url.includes('google.com')) {
+      if (!url.includes('google.com') && !url.includes('gstatic.com')) {
         imageUrls.push(url);
       }
     }
   }
 
+  // Remove duplicates and return
   return [...new Set(imageUrls)];
 }
