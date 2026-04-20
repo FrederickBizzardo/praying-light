@@ -8,11 +8,9 @@ async function handleCalendarRequest() {
   console.log('Request received at /api/calendar');
 
   try {
-    // Use allorigins.win as the CORS proxy
     const targetUrl = "http://calapi.inadiutorium.cz/api/v0/en/calendars/default/today";
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
     
-    const response = await fetch(proxyUrl, {
+    const response = await fetch(targetUrl, {
       headers: {
         'Accept': 'application/json',
         'Accept-Language': 'en-US,en;q=0.9'
