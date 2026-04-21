@@ -1,6 +1,6 @@
-import { c as createComponent } from './astro-component_D6IvIAH2.mjs';
+import { c as createComponent } from './astro-component_TAd7FofQ.mjs';
 import 'piccolore';
-import { h as addAttribute, l as renderHead, n as renderComponent, r as renderTemplate } from './entrypoint_CNrXVnra.mjs';
+import { h as addAttribute, l as renderHead, n as renderComponent, r as renderTemplate } from './entrypoint_BrBBIauu.mjs';
 import { jsx, Fragment, jsxs } from 'react/jsx-runtime';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -57,21 +57,39 @@ function ImageScraper({ searchQuery }) {
   );
 }
 
-const roseResponse = await fetch("https://the-rosary-api.vercel.app/v1/today");
-const roseData = await roseResponse.json();
-const rosary = roseData.map((celebration) => celebration.mystery);
-const rosaryDown = roseData.map((celebration) => celebration.mp3Link);
-console.log("Rosary Data:", roseData);
-console.log("Rosary:", rosary);
-console.log("Rosary MP3 Links:", rosaryDown);
 function Rosary() {
+  const [rosaryData, setRosaryData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    async function fetchRosary() {
+      try {
+        const response = await fetch("https://the-rosary-api.vercel.app/v1/today");
+        const data = await response.json();
+        if (data && data.length > 0) {
+          setRosaryData(data[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching rosary:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchRosary();
+  }, []);
+  if (isLoading) return /* @__PURE__ */ jsx("p", { children: "Loading Rosary..." });
+  if (!rosaryData) return /* @__PURE__ */ jsx("p", { children: "No Rosary data found." });
+  const mystery = rosaryData.mystery;
+  const audioUrl = rosaryData.mp3AudioUrl;
   return /* @__PURE__ */ jsxs("main", { className: "", children: [
     /* @__PURE__ */ jsx("h1", { className: "font-black text-4xl mt-30 mb-2", children: "Rosary" }),
     /* @__PURE__ */ jsxs("p", { className: "italic text-2xl", children: [
-      rosary.join(", "),
+      mystery,
       " Mysteries"
     ] }),
-    /* @__PURE__ */ jsx("audio", { controls: true, children: /* @__PURE__ */ jsx("source", { src: rosaryDown, type: "audio/mpeg" }) })
+    audioUrl && /* @__PURE__ */ jsxs("audio", { controls: true, className: "mx-auto mt-4", children: [
+      /* @__PURE__ */ jsx("source", { src: audioUrl, type: "audio/mpeg" }),
+      "Your browser does not support the audio element."
+    ] })
   ] });
 }
 

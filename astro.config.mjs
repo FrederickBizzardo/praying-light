@@ -9,5 +9,7 @@ export default defineConfig({
   // Enable React to support React JSX components.
   integrations: [react(), tailwind()],
   output: 'server',
-  adapter: vercel(),
+  adapter: vercel({
+    runtime: 'nodejs20.x'
+  }),
 });

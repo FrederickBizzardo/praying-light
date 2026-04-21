@@ -14,13 +14,24 @@ async function handleImageScrape(request) {
       headers: { "Content-Type": "application/json" }
     });
   }
+  let optimizedQuery = searchQuery;
   if (searchQuery.toLowerCase().includes("week") || searchQuery.toLowerCase().includes("easter") || searchQuery.toLowerCase().includes("lent")) {
-    searchQuery = `Catholic ${searchQuery}`;
+    const saintMatch = searchQuery.match(/(Saint|St\.)\s+([^,]+)/i);
+    if (saintMatch) {
+      optimizedQuery = `Catholic ${saintMatch[0]}`;
+    } else {
+      optimizedQuery = `Catholic ${searchQuery}`;
+    }
   }
   try {
-    const images = await fetchImagesFromGoogle(searchQuery);
+    console.log(`Searching for: ${optimizedQuery}`);
+    let images = await fetchImagesFromBing(optimizedQuery);
+    if (images.length === 0 && optimizedQuery !== searchQuery) {
+      console.log(`No results for optimized query, trying original: ${searchQuery}`);
+      images = await fetchImagesFromBing(searchQuery);
+    }
     if (images.length > 0) {
-      console.log(`Found ${images.length} images for: ${searchQuery}`);
+      console.log(`Found ${images.length} images for: ${optimizedQuery}`);
       return new Response(JSON.stringify({ imageUrl: images[0] }), {
         status: 200,
         headers: {
@@ -29,9 +40,9 @@ async function handleImageScrape(request) {
         }
       });
     }
-    const simplerQuery = searchQuery.replace("Catholic ", "").includes(",") ? searchQuery.split(",").slice(-1)[0].trim() : "Catholic Cross";
+    const simplerQuery = searchQuery.includes(",") ? searchQuery.split(",").slice(-1)[0].trim() : "Catholic Cross";
     console.log("Retrying with fallback query:", simplerQuery);
-    const fallbackImages = await fetchImagesFromGoogle(simplerQuery);
+    const fallbackImages = await fetchImagesFromBing(simplerQuery);
     if (fallbackImages.length > 0) {
       return new Response(JSON.stringify({ imageUrl: fallbackImages[0] }), {
         status: 200,
@@ -45,48 +56,38 @@ async function handleImageScrape(request) {
     });
   } catch (error) {
     console.error("Error scraping image:", error);
-    return new Response(JSON.stringify({ error: "Failed to scrape image" }), {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return new Response(JSON.stringify({ error: "Failed to scrape image", details: errorMessage }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
   }
 }
-async function fetchImagesFromGoogle(query) {
-  const searchLink = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(query)}&safe=active`;
+async function fetchImagesFromBing(query) {
+  const searchLink = `https://www.bing.com/images/search?q=${encodeURIComponent(query)}&first=1`;
   const response = await fetch(searchLink, {
     headers: {
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-      "Accept-Language": "en-US,en;q=0.5",
-      "Referer": "https://www.google.com/"
-    },
-    signal: AbortSignal.timeout(5e3)
+      "Accept-Language": "en-US,en;q=0.5"
+    }
   });
-  if (!response.ok) throw new Error(`Google Search failed: ${response.status}`);
+  if (!response.ok) throw new Error(`Bing Search failed: ${response.status}`);
   const html = await response.text();
-  return getGoogleImages(html);
+  return getBingImages(html);
 }
-function getGoogleImages(googleHtml) {
+function getBingImages(html) {
   const imageUrls = [];
-  const highQualRegex = /"(https?:\/\/[^"\\ ]+?\.(?:jpg|jpeg|png|webp))"/gi;
+  const murlRegex = /murl&quot;:&quot;(https?:\/\/[^&]+)&quot;/gi;
   let match;
-  while ((match = highQualRegex.exec(googleHtml)) !== null) {
-    const url = match[1];
-    if (!url.includes("google.com") && !url.includes("gstatic.com")) {
-      imageUrls.push(url);
-    }
+  while ((match = murlRegex.exec(html)) !== null) {
+    imageUrls.push(match[1]);
   }
   if (imageUrls.length === 0) {
-    const thumbRegex = /(https?:\/\/encrypted-tbn0\.gstatic\.com\/images\?q=tbn:[^"\\\s<>]+)/gi;
-    while ((match = thumbRegex.exec(googleHtml)) !== null) {
-      imageUrls.push(match[1]);
-    }
-  }
-  if (imageUrls.length === 0) {
-    const anyImgRegex = /<img[^>]+src=["'](https?:\/\/[^"']+)["']/gi;
-    while ((match = anyImgRegex.exec(googleHtml)) !== null) {
+    const imgRegex = /<img[^>]+src=["'](https?:\/\/[^"']+)["']/gi;
+    while ((match = imgRegex.exec(html)) !== null) {
       const url = match[1];
-      if (!url.includes("gen_204")) {
+      if (!url.includes("bing.com") && !url.includes("bing.net") && !url.includes("gstatic.com") && url.length > 30) {
         imageUrls.push(url);
       }
     }

@@ -9,8 +9,7 @@ async function handleCalendarRequest() {
       headers: {
         "Accept": "application/json",
         "Accept-Language": "en-US,en;q=0.9"
-      },
-      signal: AbortSignal.timeout(1e4)
+      }
     });
     if (!response.ok) {
       console.error(`Calendar API returned status: ${response.status}`);
@@ -28,39 +27,37 @@ async function handleCalendarRequest() {
     });
   } catch (error) {
     console.error("Calendar API error:", error);
-    const err = error;
-    if (err instanceof TypeError && err.message.includes("fetch failed")) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorName = error instanceof Error ? error.name : "UnknownError";
+    if (errorMessage.includes("fetch failed")) {
       return new Response(JSON.stringify({
         error: "Unable to connect to calendar service",
         details: "Service may be temporarily unavailable"
       }), {
         status: 503,
         headers: {
-          "Content-Type": "application/json",
-          "Retry-After": "60"
+          "Content-Type": "application/json"
         }
       });
     }
-    if (err.name === "AbortError") {
+    if (errorName === "AbortError") {
       return new Response(JSON.stringify({
         error: "Request timeout",
         details: "Calendar service took too long to respond"
       }), {
         status: 504,
         headers: {
-          "Content-Type": "application/json",
-          "Retry-After": "30"
+          "Content-Type": "application/json"
         }
       });
     }
     return new Response(JSON.stringify({
       error: "Failed to fetch calendar data",
-      details: err.message
+      details: errorMessage
     }), {
       status: 500,
       headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-store"
+        "Content-Type": "application/json"
       }
     });
   }
