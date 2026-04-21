@@ -1,6 +1,6 @@
-import { c as createComponent } from './astro-component_gA1HtKy9.mjs';
+import { c as createComponent } from './astro-component_i26MeneT.mjs';
 import 'piccolore';
-import { h as addAttribute, l as renderHead, n as renderComponent, r as renderTemplate } from './entrypoint_7YZwwMcw.mjs';
+import { h as addAttribute, l as renderHead, n as renderComponent, r as renderTemplate } from './entrypoint_BmNM34bE.mjs';
 import { jsx, Fragment, jsxs } from 'react/jsx-runtime';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
