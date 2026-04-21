@@ -74,7 +74,8 @@ async function handleImageScrape(request: Request) {
     });
   } catch (error) {
     console.error('Error scraping image:', error);
-    return new Response(JSON.stringify({ error: 'Failed to scrape image' }), {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return new Response(JSON.stringify({ error: 'Failed to scrape image', details: errorMessage }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -89,8 +90,7 @@ async function fetchImagesFromBing(query: string): Promise<string[]> {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
       'Accept-Language': 'en-US,en;q=0.5',
-    },
-    signal: AbortSignal.timeout(5000)
+    }
   });
 
   if (!response.ok) throw new Error(`Bing Search failed: ${response.status}`);
