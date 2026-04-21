@@ -5,12 +5,7 @@ async function handleCalendarRequest() {
   console.log("Request received at /api/calendar");
   try {
     const targetUrl = "http://calapi.inadiutorium.cz/api/v0/en/calendars/default/today";
-    const response = await fetch(targetUrl, {
-      headers: {
-        "Accept": "application/json",
-        "Accept-Language": "en-US,en;q=0.9"
-      }
-    });
+    const response = await fetch(targetUrl);
     if (!response.ok) {
       console.error(`Calendar API returned status: ${response.status}`);
       throw new Error(`API responded with status: ${response.status}`);

@@ -11,12 +11,7 @@ async function handleCalendarRequest() {
     // Use http as https is not supported by this API
     const targetUrl = "http://calapi.inadiutorium.cz/api/v0/en/calendars/default/today";
     
-    const response = await fetch(targetUrl, {
-      headers: {
-        'Accept': 'application/json',
-        'Accept-Language': 'en-US,en;q=0.9'
-      }
-    });
+    const response = await fetch(targetUrl);
 
 
     if (!response.ok) {

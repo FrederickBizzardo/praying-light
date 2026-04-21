@@ -1,5 +1,5 @@
-import { t as typeHandlers, a as types, A as AstroError, N as NoImageMetadata, F as FailedToFetchRemoteImageDimensions, i as isRemoteAllowed, R as RemoteImageNotAllowed, j as joinPaths, E as ExpectedImage, b as isRemotePath, L as LocalImageUsedWrongly, M as MissingImageDimension, U as UnsupportedImageFormat, I as IncompatibleDescriptorOptions, c as UnsupportedImageConversion, d as InvalidImageService, e as ExpectedImageOptions, f as ExpectedNotESMImage, g as ImageMissingAlt, m as maybeRenderHead, h as addAttribute, s as spreadAttributes, r as renderTemplate, k as FontFamilyNotFound, u as unescapeHTML } from './entrypoint_BmNM34bE.mjs';
-import { c as createComponent } from './astro-component_i26MeneT.mjs';
+import { t as typeHandlers, a as types, A as AstroError, N as NoImageMetadata, F as FailedToFetchRemoteImageDimensions, i as isRemoteAllowed, R as RemoteImageNotAllowed, j as joinPaths, E as ExpectedImage, b as isRemotePath, L as LocalImageUsedWrongly, M as MissingImageDimension, U as UnsupportedImageFormat, I as IncompatibleDescriptorOptions, c as UnsupportedImageConversion, d as InvalidImageService, e as ExpectedImageOptions, f as ExpectedNotESMImage, g as ImageMissingAlt, m as maybeRenderHead, h as addAttribute, s as spreadAttributes, r as renderTemplate, k as FontFamilyNotFound, u as unescapeHTML } from './entrypoint_BfGG9MWp.mjs';
+import { c as createComponent } from './astro-component_CjY6mMpX.mjs';
 import 'clsx';
 import * as mime from 'mrmime';
 import 'piccolore';
@@ -276,13 +276,6 @@ function isLocalService(service) {
   }
   return "transform" in service;
 }
-function parseQuality(quality) {
-  let result = Number.parseInt(quality);
-  if (Number.isNaN(result)) {
-    return quality;
-  }
-  return result;
-}
 const sortNumeric = (a, b) => a - b;
 function verifyOptions(options) {
   if (!options.src || !isRemoteImage(options.src) && !isESMImportedImage(options.src)) {
@@ -336,6 +329,7 @@ function verifyOptions(options) {
   }
 }
 const baseService = {
+  propertiesToHash: DEFAULT_HASH_PROPS,
   validateOptions(options) {
     verifyOptions(options);
     if (!options.format) {
@@ -524,7 +518,7 @@ async function getConfiguredImageService() {
   if (!globalThis?.astroAsset?.imageService) {
     const { default: service } = await import(
       // @ts-expect-error
-      './sharp_DxreSTY9.mjs'
+      './noop_DXttOP0k.mjs'
     ).catch((e) => {
       const error = new AstroError(InvalidImageService);
       error.cause = e;
@@ -855,7 +849,7 @@ const $$Font = createComponent(($$result, $$props, $$slots) => {
 }, "C:/Users/fgnye/OneDrive/Desktop/projects/praying-light/node_modules/astro/components/Font.astro", void 0);
 
 const assetQueryParams = undefined;
-					const imageConfig = {"endpoint":{"route":"/_image"},"service":{"entrypoint":"astro/assets/services/sharp","config":{}},"domains":[],"remotePatterns":[],"responsiveStyles":false};
+					const imageConfig = {"endpoint":{"route":"/_image"},"service":{"entrypoint":"astro/assets/services/noop","config":{}},"domains":[],"remotePatterns":[],"responsiveStyles":false};
 					Object.defineProperty(imageConfig, 'assetQueryParams', {
 						value: assetQueryParams,
 						enumerable: false,
@@ -962,4 +956,4 @@ const generic___js = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProper
   page
 }, Symbol.toStringTag, { value: 'Module' }));
 
-export { baseService as b, generic___js as g, parseQuality as p };
+export { baseService as b, generic___js as g, isESMImportedImage as i, verifyOptions as v };
